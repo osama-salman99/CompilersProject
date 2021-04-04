@@ -7,12 +7,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import java.io.IOException;
 
 public class Driver {
-
-	private static final String[] Token_types = new String[]{
-			"KEYWORD", "OPERATOR", "IDENTIFIER", "INTLITERAL", "FLOATLITERAL", "STRINGLITERAL",
-			"COMMENT", "WS"
-	};
-
 	public static void main(String[] args) {
 		MicroLexer lexer = null;
 		try {
