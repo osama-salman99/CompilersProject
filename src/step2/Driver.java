@@ -18,16 +18,12 @@ public class Driver {
 			System.exit(0);
 		}
 
-		// add code here to print each tokenâ€™s type and value
-
 		MicroParser parser = new MicroParser(new CommonTokenStream(lexer));
 		parser.program();
 
 		if (parser.getNumberOfSyntaxErrors() == 0) {
-
 			System.out.println("Accepted");
 		} else {
-
 			System.out.println("Not Accepted");
 		}
 	}
