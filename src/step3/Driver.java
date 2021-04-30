@@ -37,16 +37,7 @@ public class Driver {
 			List<Symbol> symbols = entry.getValue();
 			System.out.println("<<Scope " + scope + ">>");
 			for (Symbol symbol : symbols) {
-				String type = symbol.getType();
-				String name = symbol.getName();
-				String value = symbol.getValue();
-				StringBuilder stringBuilder = new StringBuilder();
-				stringBuilder.append("name").append(" ").append(name).append(" ");
-				stringBuilder.append("type").append(" ").append(type).append(" ");
-				if (value != null) {
-					stringBuilder.append("value").append(" ").append(value).append(" ");
-				}
-				System.out.println(stringBuilder.toString().trim());
+				System.out.println(symbol);
 			}
 			System.out.println();
 		}
