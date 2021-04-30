@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class Driver {
 	public static void main(String[] args) {
+
 		MicroLexer lexer = null;
 		try {
 			String srcFile = args[0];

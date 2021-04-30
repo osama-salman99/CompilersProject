@@ -304,7 +304,18 @@ public class MicroBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override
-	public T visitElse_part(MicroParser.Else_partContext ctx) {
+	public T visitElse(MicroParser.ElseContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override
+	public T visitNo_else(MicroParser.No_elseContext ctx) {
 		return visitChildren(ctx);
 	}
 

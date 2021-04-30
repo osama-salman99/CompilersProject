@@ -1027,6 +1027,7 @@ public class MicroParser extends Parser {
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 				case T__18:
+					_localctx = new ElseContext(_localctx);
 					enterOuterAlt(_localctx, 1);
 				{
 					setState(218);
@@ -1038,6 +1039,7 @@ public class MicroParser extends Parser {
 				}
 				break;
 				case T__17:
+					_localctx = new No_elseContext(_localctx);
 					enterOuterAlt(_localctx, 2);
 				{
 				}
@@ -2267,6 +2269,24 @@ public class MicroParser extends Parser {
 			super(parent, invokingState);
 		}
 
+		public Else_partContext() {
+		}
+
+		@Override
+		public int getRuleIndex() {
+			return RULE_else_part;
+		}
+
+		public void copyFrom(Else_partContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+
+	public static class ElseContext extends Else_partContext {
+		public ElseContext(Else_partContext ctx) {
+			copyFrom(ctx);
+		}
+
 		public DeclContext decl() {
 			return getRuleContext(DeclContext.class, 0);
 		}
@@ -2276,13 +2296,20 @@ public class MicroParser extends Parser {
 		}
 
 		@Override
-		public int getRuleIndex() {
-			return RULE_else_part;
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitElse(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public static class No_elseContext extends Else_partContext {
+		public No_elseContext(Else_partContext ctx) {
+			copyFrom(ctx);
 		}
 
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitElse_part(this);
+			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitNo_else(this);
 			else return visitor.visitChildren(this);
 		}
 	}

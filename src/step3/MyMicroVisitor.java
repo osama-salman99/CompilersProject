@@ -49,6 +49,14 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 	}
 
 	@Override
+	public Void visitElse(MicroParser.ElseContext ctx) {
+		pushScope("BLOCK #" + getNewBlockNumber());
+		visitChildren(ctx);
+		popScope();
+		return null;
+	}
+
+	@Override
 	public Void visitFor_stmt(MicroParser.For_stmtContext ctx) {
 		pushScope("BLOCK #" + getNewBlockNumber());
 		visitChildren(ctx);

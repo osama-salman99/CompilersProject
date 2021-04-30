@@ -219,12 +219,22 @@ public interface MicroVisitor<T> extends ParseTreeVisitor<T> {
 	T visitIf_stmt(MicroParser.If_stmtContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link MicroParser#else_part}.
+	 * Visit a parse tree produced by the {@code else}
+	 * labeled alternative in {@link MicroParser#else_part}.
 	 *
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitElse_part(MicroParser.Else_partContext ctx);
+	T visitElse(MicroParser.ElseContext ctx);
+
+	/**
+	 * Visit a parse tree produced by the {@code no_else}
+	 * labeled alternative in {@link MicroParser#else_part}.
+	 *
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNo_else(MicroParser.No_elseContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link MicroParser#cond}.
