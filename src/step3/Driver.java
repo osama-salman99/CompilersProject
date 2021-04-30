@@ -30,8 +30,8 @@ public class Driver {
 		}
 
 		MyMicroVisitor myMicroVisitor = new MyMicroVisitor();
-		myMicroVisitor.visit(program);
-		for (Map.Entry<String, List<Symbol>> entry : myMicroVisitor.getScopes().entrySet()) {
+		myMicroVisitor.visitProgram(program);
+		for (Map.Entry<String, List<Symbol>> entry : myMicroVisitor.getScopesMap().entrySet()) {
 			String scope = entry.getKey();
 			List<Symbol> symbols = entry.getValue();
 			System.out.println("<<Scope " + scope + ">>");
@@ -41,7 +41,7 @@ public class Driver {
 				String value = symbol.getValue();
 				StringBuilder stringBuilder = new StringBuilder();
 				stringBuilder.append("name").append(" ").append(name).append(" ");
-				stringBuilder.append("type").append(" ").append(name).append(" ");
+				stringBuilder.append("type").append(" ").append(type).append(" ");
 				if (type.equals(Symbol.STRING)) {
 					stringBuilder.append("value").append(" ").append(value).append(" ");
 				}
