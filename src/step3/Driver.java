@@ -3,6 +3,7 @@ package step3;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +23,7 @@ public class Driver {
 		}
 
 		MicroParser parser = new MicroParser(new CommonTokenStream(lexer));
-		MicroParser.ProgramContext program = parser.program();
+		ParseTree tree = parser.program();
 
 		if (parser.getNumberOfSyntaxErrors() == 0) {
 			System.out.println("Accepted");
@@ -31,7 +32,7 @@ public class Driver {
 		}
 
 		MyMicroVisitor myMicroVisitor = new MyMicroVisitor();
-		myMicroVisitor.visitProgram(program);
+		myMicroVisitor.visit(tree);
 		for (Map.Entry<String, List<Symbol>> entry : myMicroVisitor.getScopesMap().entrySet()) {
 			String scope = entry.getKey();
 			List<Symbol> symbols = entry.getValue();
