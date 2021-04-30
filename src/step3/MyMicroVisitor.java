@@ -5,10 +5,12 @@ import java.util.*;
 public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 	private final Map<String, List<Symbol>> scopesMap;
 	private final Stack<String> currentScope;
+	private int blockCount;
 
 	public MyMicroVisitor() {
-		scopesMap = new HashMap<>();
+		scopesMap = new LinkedHashMap<>();
 		currentScope = new Stack<>();
+		blockCount = 0;
 	}
 
 	public Map<String, List<Symbol>> getScopesMap() {
@@ -17,17 +19,40 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 
 	@Override
 	public Void visitProgram(MicroParser.ProgramContext ctx) {
-		currentScope.push("Global");
-		visitPgm_body(ctx.pgm_body());
-		currentScope.pop();
+		pushScope("Global");
+		visitChildren(ctx.pgm_body());
+		popScope();
 		return null;
 	}
 
 	@Override
 	public Void visitFunc_decl(MicroParser.Func_declContext ctx) {
-		currentScope.push(ctx.any_type().getText());
+		pushScope(ctx.id().getText());
+		visitChildren(ctx);
+		popScope();
+		return null;
+	}
 
-		currentScope.pop();
+	@Override
+	public Void visitParam_decl(MicroParser.Param_declContext ctx) {
+		Symbol symbol = new Symbol(ctx.var_type().getText(), ctx.id().getText());
+		addToCurrentScope(symbol);
+		return null;
+	}
+
+	@Override
+	public Void visitIf_stmt(MicroParser.If_stmtContext ctx) {
+		pushScope("BLOCK #" + getNewBlockNumber());
+		visitChildren(ctx);
+		popScope();
+		return null;
+	}
+
+	@Override
+	public Void visitFor_stmt(MicroParser.For_stmtContext ctx) {
+		pushScope("BLOCK #" + getNewBlockNumber());
+		visitChildren(ctx);
+		popScope();
 		return null;
 	}
 
@@ -52,9 +77,6 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 
 	private void addToCurrentScope(Symbol symbol) {
 		String currentScope = this.currentScope.peek();
-		if (!scopesMap.containsKey(currentScope)) {
-			scopesMap.put(currentScope, new ArrayList<>());
-		}
 		scopesMap.get(currentScope).add(symbol);
 	}
 
@@ -67,4 +89,18 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 		return ids;
 	}
 
+	private void pushScope(String scope) {
+		currentScope.push(scope);
+		if (!scopesMap.containsKey(scope)) {
+			scopesMap.put(scope, new ArrayList<>());
+		}
+	}
+
+	private void popScope() {
+		currentScope.pop();
+	}
+
+	private int getNewBlockNumber() {
+		return ++blockCount;
+	}
 }

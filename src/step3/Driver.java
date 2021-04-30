@@ -42,11 +42,12 @@ public class Driver {
 				StringBuilder stringBuilder = new StringBuilder();
 				stringBuilder.append("name").append(" ").append(name).append(" ");
 				stringBuilder.append("type").append(" ").append(type).append(" ");
-				if (type.equals(Symbol.STRING)) {
+				if (value != null) {
 					stringBuilder.append("value").append(" ").append(value).append(" ");
 				}
-				System.out.println(stringBuilder);
+				System.out.println(stringBuilder.toString().trim());
 			}
+			System.out.println();
 		}
 	}
 }
