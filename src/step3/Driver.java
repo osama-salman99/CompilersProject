@@ -5,7 +5,9 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +31,12 @@ public class Driver {
 			System.out.println("Accepted");
 		} else {
 			System.out.println("Not Accepted");
+		}
+
+		try {
+			System.setOut(new PrintStream("test.out"));
+		} catch (FileNotFoundException exception) {
+			System.out.println(exception.getMessage());
 		}
 
 		MyMicroVisitor myMicroVisitor = new MyMicroVisitor();
