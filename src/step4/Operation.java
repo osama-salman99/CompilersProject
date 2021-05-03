@@ -48,13 +48,13 @@ public class Operation {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append(opCode).append(" ");
 		if (operand1 != null) {
-			stringBuilder.append(operand1).append(" ");
+			stringBuilder.append(operand1.getName()).append(" ");
 		}
 		if (operand2 != null) {
-			stringBuilder.append(operand2).append(" ");
+			stringBuilder.append(operand2.getName()).append(" ");
 		}
 		if (result != null) {
-			stringBuilder.append(result).append(" ");
+			stringBuilder.append(result.getName()).append(" ");
 		}
 		if (label != null) {
 			stringBuilder.append(label).append(" ");

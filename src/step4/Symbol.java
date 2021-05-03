@@ -15,6 +15,10 @@ public class Symbol {
 		this.value = value;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
