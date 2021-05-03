@@ -6,8 +6,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 public class Driver {
 	public static void main(String[] args) {
@@ -32,14 +30,5 @@ public class Driver {
 
 		MyMicroVisitor myMicroVisitor = new MyMicroVisitor();
 		myMicroVisitor.visit(tree);
-		for (Map.Entry<String, List<Symbol>> entry : myMicroVisitor.getScopesMap().entrySet()) {
-			String scope = entry.getKey();
-			List<Symbol> symbols = entry.getValue();
-			System.out.println("<<Scope " + scope + ">>");
-			for (Symbol symbol : symbols) {
-				System.out.println(symbol);
-			}
-			System.out.println();
-		}
 	}
 }
