@@ -3,7 +3,7 @@ package step4;
 import java.util.*;
 
 public class MyMicroVisitor extends MicroBaseVisitor<Void> {
-	private final Map<String, List<Symbol>> scopesMap;
+	private final Map<String, SymbolList> scopesMap;
 	private final Stack<String> currentScope;
 	private int blockCount;
 
@@ -13,7 +13,7 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 		blockCount = 0;
 	}
 
-	public Map<String, List<Symbol>> getScopesMap() {
+	public Map<String, SymbolList> getScopesMap() {
 		return scopesMap;
 	}
 
@@ -100,7 +100,7 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 	private void pushScope(String scope) {
 		currentScope.push(scope);
 		if (!scopesMap.containsKey(scope)) {
-			scopesMap.put(scope, new ArrayList<>());
+			scopesMap.put(scope, new SymbolList());
 		}
 	}
 
