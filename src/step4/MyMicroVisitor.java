@@ -27,7 +27,9 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 
 	@Override
 	public Optional<Symbol> visitFunc_decl(MicroParser.Func_declContext ctx) {
-		pushScope(ctx.id().getText());
+		String functionName = ctx.id().getText();
+		addInstruction(new Instruction("LABEL", functionName));
+		pushScope(functionName);
 		visitChildren(ctx);
 		popScope();
 		return Optional.empty();
