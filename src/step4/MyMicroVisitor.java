@@ -195,13 +195,49 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		return Optional.of(temporarySymbol);
 	}
 
-	private Symbol createNewTemporarySymbol(String type) {
-		return new Symbol(type, "$T" + (++tempCount));
-	}
-
 	@Override
 	public Optional<Symbol> visitExprPrefix(MicroParser.ExprPrefixContext ctx) {
-		return Optional.of(new Symbol("INT", "hi")); // TODO
+		Optional<Symbol> prefixOptional = visit(ctx.expr_prefix());
+		Optional<Symbol> termOptional = visit(ctx.term());
+		if (!prefixOptional.isPresent()) {
+			return termOptional;
+		}
+		if (!termOptional.isPresent()) {
+			throw new RuntimeException("Term optional is empty");
+		}
+		MicroParser.ExprPrefixContext exprPrefix = ((MicroParser.ExprPrefixContext) ctx.expr_prefix());
+		String opcode;
+		switch (exprPrefix.addop().getText()) {
+			case "+":
+				switch (prefixOptional.get().getType()) {
+					case "INT":
+						opcode = "ADDI";
+						break;
+					case "FLOAT":
+						opcode = "ADDF";
+						break;
+					default:
+						throw new IllegalArgumentException("Cannot add value of type STRING");
+				}
+				break;
+			case "-":
+				switch (prefixOptional.get().getType()) {
+					case "INT":
+						opcode = "SUBI";
+						break;
+					case "FLOAT":
+						opcode = "SUBF";
+						break;
+					default:
+						throw new IllegalArgumentException("Cannot subtract value of type STRING");
+				}
+				break;
+			default:
+				throw new RuntimeException("Addition/subtraction Operation is not + or -");
+		}
+		Symbol temporarySymbol = createNewTemporarySymbol(prefixOptional.get().getType());
+		addInstruction(new Instruction(opcode, prefixOptional.get(), termOptional.get(), temporarySymbol));
+		return Optional.of(temporarySymbol);
 	}
 
 	@Override
@@ -210,18 +246,127 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 	}
 
 	@Override
-	public Optional<Symbol> visitFactorPrefix(MicroParser.FactorPrefixContext ctx) {
-		return Optional.of(new Symbol("FLOAT", "sine")); // TODO
+	public Optional<Symbol> visitTerm(MicroParser.TermContext ctx) {
+		Optional<Symbol> prefixOptional = visit(ctx.factor_prefix());
+		Optional<Symbol> factorOptional = visit(ctx.factor());
+		if (!prefixOptional.isPresent()) {
+			return factorOptional;
+		}
+		if (!factorOptional.isPresent()) {
+			throw new RuntimeException("Term optional is empty");
+		}
+		MicroParser.FactorPrefixContext factorPrefix = ((MicroParser.FactorPrefixContext) ctx.factor_prefix());
+		String opcode;
+		switch (factorPrefix.mulop().getText()) {
+			case "*":
+				switch (prefixOptional.get().getType()) {
+					case "INT":
+						opcode = "MULTI";
+						break;
+					case "FLOAT":
+						opcode = "MULTF";
+						break;
+					default:
+						throw new IllegalArgumentException("Cannot multiply value of type STRING");
+				}
+				break;
+			case "/":
+				switch (prefixOptional.get().getType()) {
+					case "INT":
+						opcode = "DIVI";
+						break;
+					case "FLOAT":
+						opcode = "DIVF";
+						break;
+					default:
+						throw new IllegalArgumentException("Cannot divide value of type STRING");
+				}
+				break;
+			default:
+				throw new RuntimeException("Multiplication/division Operation is not * or /");
+		}
+		Symbol temporarySymbol = createNewTemporarySymbol(prefixOptional.get().getType());
+		addInstruction(new Instruction(opcode, prefixOptional.get(), factorOptional.get(), temporarySymbol));
+		return Optional.of(temporarySymbol);
 	}
 
 	@Override
-	public Optional<Symbol> visitTerm(MicroParser.TermContext ctx) {
-		return Optional.of(new Symbol("FLOAT", "term")); // TODO
+	public Optional<Symbol> visitFactorPrefix(MicroParser.FactorPrefixContext ctx) {
+		Optional<Symbol> prefixOptional = visit(ctx.factor_prefix());
+		Optional<Symbol> factorOptional = visit(ctx.factor());
+		if (!prefixOptional.isPresent()) {
+			return factorOptional;
+		}
+		if (!factorOptional.isPresent()) {
+			throw new RuntimeException("Term optional is empty");
+		}
+		MicroParser.FactorPrefixContext factorPrefix = ((MicroParser.FactorPrefixContext) ctx.factor_prefix());
+		String opcode;
+		switch (factorPrefix.mulop().getText()) {
+			case "*":
+				switch (prefixOptional.get().getType()) {
+					case "INT":
+						opcode = "MULTI";
+						break;
+					case "FLOAT":
+						opcode = "MULTF";
+						break;
+					default:
+						throw new IllegalArgumentException("Cannot multiply value of type STRING");
+				}
+				break;
+			case "/":
+				switch (prefixOptional.get().getType()) {
+					case "INT":
+						opcode = "DIVI";
+						break;
+					case "FLOAT":
+						opcode = "DIVF";
+						break;
+					default:
+						throw new IllegalArgumentException("Cannot divide value of type STRING");
+				}
+				break;
+			default:
+				throw new RuntimeException("Multiplication/division Operation is not * or /");
+		}
+		Symbol temporarySymbol = createNewTemporarySymbol(prefixOptional.get().getType());
+		addInstruction(new Instruction(opcode, prefixOptional.get(), factorOptional.get(), temporarySymbol));
+		return Optional.of(temporarySymbol);
 	}
 
 	@Override
 	public Optional<Symbol> visitNoFactorPrefix(MicroParser.NoFactorPrefixContext ctx) {
 		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Symbol> visitFactor(MicroParser.FactorContext ctx) {
+		return visit(ctx.primary());
+	}
+
+	@Override
+	public Optional<Symbol> visitPrimaryParentheses(MicroParser.PrimaryParenthesesContext ctx) {
+		return visitExpr(ctx.expr());
+	}
+
+	@Override
+	public Optional<Symbol> visitPrimaryId(MicroParser.PrimaryIdContext ctx) {
+		return Optional.of(getSymbol(ctx.id().getText()));
+	}
+
+	@Override
+	public Optional<Symbol> visitIntliteral(MicroParser.IntliteralContext ctx) {
+		Symbol symbol = new Symbol("INT", ctx.getText(), ctx.getText());
+		symbol.setConstant(true);
+		return Optional.of(symbol);
+	}
+
+	@Override
+	public Optional<Symbol> visitFloatliteral(MicroParser.FloatliteralContext ctx) {
+		Symbol symbol = new Symbol("FLOAT", ctx.getText(), ctx.getText());
+		symbol.setConstant(true);
+		return Optional.of(symbol);
 	}
 
 	private List<String> getIds(MicroParser.Id_tailContext tail) {
@@ -270,5 +415,9 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 
 	private int getNewBlockNumber() {
 		return ++blockCount;
+	}
+
+	private Symbol createNewTemporarySymbol(String type) {
+		return new Symbol(type, "$T" + (++tempCount));
 	}
 }
