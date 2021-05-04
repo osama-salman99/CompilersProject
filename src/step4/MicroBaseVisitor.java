@@ -1,4 +1,4 @@
-package step4;// Generated from D:\Users\osama\OneDrive\Documents\Compilers\Project\Step 3\Micro.g4 by ANTLR 4.9.2
+package step4;// Generated from D:\Users\osama\OneDrive\Documents\Compilers\Project\Step 4\Micro.g4 by ANTLR 4.9.2
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -392,7 +392,18 @@ public class MicroBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override
-	public T visitExpr_prefix(MicroParser.Expr_prefixContext ctx) {
+	public T visitExprPrefix(MicroParser.ExprPrefixContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override
+	public T visitNoExprPrefix(MicroParser.NoExprPrefixContext ctx) {
 		return visitChildren(ctx);
 	}
 
@@ -414,7 +425,18 @@ public class MicroBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override
-	public T visitFactor_prefix(MicroParser.Factor_prefixContext ctx) {
+	public T visitNoFactorPrefix(MicroParser.NoFactorPrefixContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override
+	public T visitFactorPrefix(MicroParser.FactorPrefixContext ctx) {
 		return visitChildren(ctx);
 	}
 

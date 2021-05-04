@@ -7,12 +7,14 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 	private final Stack<String> currentScope;
 	private final List<Instruction> instructions;
 	private int blockCount;
+	private int tempCount;
 
 	public MyMicroVisitor() {
 		scopesMap = new LinkedHashMap<>();
 		currentScope = new Stack<>();
 		instructions = new ArrayList<>();
 		blockCount = 0;
+		tempCount = 0;
 	}
 
 	@Override
@@ -127,9 +129,9 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 	@Override
 	public Optional<Symbol> visitAssign_expr(MicroParser.Assign_exprContext ctx) {
 		String id = ctx.id().getText();
-		Symbol symbol = getSymbol(id);
+		Symbol resultSymbol = getSymbol(id);
 		String opcode;
-		switch (symbol.getType()) {
+		switch (resultSymbol.getType()) {
 			case "INT":
 				opcode = "STOREI";
 				break;
@@ -143,14 +145,83 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		if (!optional.isPresent()) {
 			throw new RuntimeException("Expression optional is empty");
 		}
-		Symbol assignedSymbol = optional.get();
-		addInstruction(new Instruction(opcode, symbol, assignedSymbol));
+		Symbol toStoreSymbol = optional.get();
+		addInstruction(new Instruction(opcode, toStoreSymbol, resultSymbol));
 		return Optional.empty();
 	}
 
 	@Override
 	public Optional<Symbol> visitExpr(MicroParser.ExprContext ctx) {
-		return Optional.of(new Symbol("INT", "s")); // TODO
+		Optional<Symbol> prefixOptional = visit(ctx.expr_prefix());
+		Optional<Symbol> termOptional = visit(ctx.term());
+		if (!prefixOptional.isPresent()) {
+			return termOptional;
+		}
+		if (!termOptional.isPresent()) {
+			throw new RuntimeException("Term optional is empty");
+		}
+		MicroParser.ExprPrefixContext exprPrefix = ((MicroParser.ExprPrefixContext) ctx.expr_prefix());
+		String opcode;
+		switch (exprPrefix.addop().getText()) {
+			case "+":
+				switch (prefixOptional.get().getType()) {
+					case "INT":
+						opcode = "ADDI";
+						break;
+					case "FLOAT":
+						opcode = "ADDF";
+						break;
+					default:
+						throw new IllegalArgumentException("Cannot add value of type STRING");
+				}
+				break;
+			case "-":
+				switch (prefixOptional.get().getType()) {
+					case "INT":
+						opcode = "SUBI";
+						break;
+					case "FLOAT":
+						opcode = "SUBF";
+						break;
+					default:
+						throw new IllegalArgumentException("Cannot add value of type STRING");
+				}
+				break;
+			default:
+				throw new RuntimeException("Addition Operation is not + or -");
+		}
+		Symbol temporarySymbol = createNewTemporarySymbol(prefixOptional.get().getType());
+		addInstruction(new Instruction(opcode, prefixOptional.get(), termOptional.get(), temporarySymbol));
+		return Optional.of(temporarySymbol);
+	}
+
+	private Symbol createNewTemporarySymbol(String type) {
+		return new Symbol(type, "$T" + (++tempCount));
+	}
+
+	@Override
+	public Optional<Symbol> visitExprPrefix(MicroParser.ExprPrefixContext ctx) {
+		return Optional.of(new Symbol("INT", "hi")); // TODO
+	}
+
+	@Override
+	public Optional<Symbol> visitNoExprPrefix(MicroParser.NoExprPrefixContext ctx) {
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Symbol> visitFactorPrefix(MicroParser.FactorPrefixContext ctx) {
+		return Optional.of(new Symbol("FLOAT", "sine")); // TODO
+	}
+
+	@Override
+	public Optional<Symbol> visitTerm(MicroParser.TermContext ctx) {
+		return Optional.of(new Symbol("FLOAT", "term")); // TODO
+	}
+
+	@Override
+	public Optional<Symbol> visitNoFactorPrefix(MicroParser.NoFactorPrefixContext ctx) {
+		return Optional.empty();
 	}
 
 	private List<String> getIds(MicroParser.Id_tailContext tail) {

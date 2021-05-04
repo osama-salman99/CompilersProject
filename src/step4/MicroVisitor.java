@@ -1,4 +1,4 @@
-package step4;// Generated from D:\Users\osama\OneDrive\Documents\Compilers\Project\Step 3\Micro.g4 by ANTLR 4.9.2
+package step4;// Generated from D:\Users\osama\OneDrive\Documents\Compilers\Project\Step 4\Micro.g4 by ANTLR 4.9.2
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -285,12 +285,22 @@ public interface MicroVisitor<T> extends ParseTreeVisitor<T> {
 	T visitExpr(MicroParser.ExprContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link MicroParser#expr_prefix}.
+	 * Visit a parse tree produced by the {@code exprPrefix}
+	 * labeled alternative in {@link MicroParser#expr_prefix}.
 	 *
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpr_prefix(MicroParser.Expr_prefixContext ctx);
+	T visitExprPrefix(MicroParser.ExprPrefixContext ctx);
+
+	/**
+	 * Visit a parse tree produced by the {@code noExprPrefix}
+	 * labeled alternative in {@link MicroParser#expr_prefix}.
+	 *
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNoExprPrefix(MicroParser.NoExprPrefixContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link MicroParser#term}.
@@ -301,12 +311,22 @@ public interface MicroVisitor<T> extends ParseTreeVisitor<T> {
 	T visitTerm(MicroParser.TermContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link MicroParser#factor_prefix}.
+	 * Visit a parse tree produced by the {@code noFactorPrefix}
+	 * labeled alternative in {@link MicroParser#factor_prefix}.
 	 *
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFactor_prefix(MicroParser.Factor_prefixContext ctx);
+	T visitNoFactorPrefix(MicroParser.NoFactorPrefixContext ctx);
+
+	/**
+	 * Visit a parse tree produced by the {@code factorPrefix}
+	 * labeled alternative in {@link MicroParser#factor_prefix}.
+	 *
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFactorPrefix(MicroParser.FactorPrefixContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link MicroParser#factor}.

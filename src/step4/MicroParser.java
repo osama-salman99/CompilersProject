@@ -1,4 +1,4 @@
-package step4;// Generated from D:\Users\osama\OneDrive\Documents\Compilers\Project\Step 3\Micro.g4 by ANTLR 4.9.2
+package step4;// Generated from D:\Users\osama\OneDrive\Documents\Compilers\Project\Step 4\Micro.g4 by ANTLR 4.9.2
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
@@ -1247,6 +1247,10 @@ public class MicroParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 				{
+					_localctx = new NoExprPrefixContext(_localctx);
+					_ctx = _localctx;
+					_prevctx = _localctx;
+
 				}
 				_ctx.stop = _input.LT(-1);
 				setState(261);
@@ -1258,7 +1262,7 @@ public class MicroParser extends Parser {
 						_prevctx = _localctx;
 						{
 							{
-								_localctx = new Expr_prefixContext(_parentctx, _parentState);
+								_localctx = new ExprPrefixContext(new Expr_prefixContext(_parentctx, _parentState));
 								pushNewRecursionContext(_localctx, _startState, RULE_expr_prefix);
 								setState(255);
 								if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
@@ -1321,6 +1325,10 @@ public class MicroParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 				{
+					_localctx = new NoFactorPrefixContext(_localctx);
+					_ctx = _localctx;
+					_prevctx = _localctx;
+
 				}
 				_ctx.stop = _input.LT(-1);
 				setState(274);
@@ -1332,7 +1340,7 @@ public class MicroParser extends Parser {
 						_prevctx = _localctx;
 						{
 							{
-								_localctx = new Factor_prefixContext(_parentctx, _parentState);
+								_localctx = new FactorPrefixContext(new Factor_prefixContext(_parentctx, _parentState));
 								pushNewRecursionContext(_localctx, _startState, RULE_factor_prefix);
 								setState(268);
 								if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
@@ -2469,6 +2477,24 @@ public class MicroParser extends Parser {
 			super(parent, invokingState);
 		}
 
+		public Expr_prefixContext() {
+		}
+
+		@Override
+		public int getRuleIndex() {
+			return RULE_expr_prefix;
+		}
+
+		public void copyFrom(Expr_prefixContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+
+	public static class ExprPrefixContext extends Expr_prefixContext {
+		public ExprPrefixContext(Expr_prefixContext ctx) {
+			copyFrom(ctx);
+		}
+
 		public Expr_prefixContext expr_prefix() {
 			return getRuleContext(Expr_prefixContext.class, 0);
 		}
@@ -2482,13 +2508,20 @@ public class MicroParser extends Parser {
 		}
 
 		@Override
-		public int getRuleIndex() {
-			return RULE_expr_prefix;
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitExprPrefix(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public static class NoExprPrefixContext extends Expr_prefixContext {
+		public NoExprPrefixContext(Expr_prefixContext ctx) {
+			copyFrom(ctx);
 		}
 
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitExpr_prefix(this);
+			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitNoExprPrefix(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2523,6 +2556,36 @@ public class MicroParser extends Parser {
 			super(parent, invokingState);
 		}
 
+		public Factor_prefixContext() {
+		}
+
+		@Override
+		public int getRuleIndex() {
+			return RULE_factor_prefix;
+		}
+
+		public void copyFrom(Factor_prefixContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+
+	public static class NoFactorPrefixContext extends Factor_prefixContext {
+		public NoFactorPrefixContext(Factor_prefixContext ctx) {
+			copyFrom(ctx);
+		}
+
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitNoFactorPrefix(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public static class FactorPrefixContext extends Factor_prefixContext {
+		public FactorPrefixContext(Factor_prefixContext ctx) {
+			copyFrom(ctx);
+		}
+
 		public Factor_prefixContext factor_prefix() {
 			return getRuleContext(Factor_prefixContext.class, 0);
 		}
@@ -2536,13 +2599,8 @@ public class MicroParser extends Parser {
 		}
 
 		@Override
-		public int getRuleIndex() {
-			return RULE_factor_prefix;
-		}
-
-		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitFactor_prefix(this);
+			if (visitor instanceof MicroVisitor) return ((MicroVisitor<? extends T>) visitor).visitFactorPrefix(this);
 			else return visitor.visitChildren(this);
 		}
 	}
