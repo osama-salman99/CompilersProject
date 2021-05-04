@@ -4,6 +4,7 @@ public class Symbol {
 	private final String name;
 	private final String type;
 	private final String value;
+	private boolean constant;
 
 	public Symbol(String type, String name) {
 		this(type, name, null);
@@ -13,6 +14,7 @@ public class Symbol {
 		this.name = name;
 		this.type = type;
 		this.value = value;
+		this.constant = false;
 	}
 
 	public String getName() {
@@ -21,6 +23,18 @@ public class Symbol {
 
 	public String getType() {
 		return type;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public boolean isConstant() {
+		return constant;
+	}
+
+	public void setConstant(boolean constant) {
+		this.constant = constant;
 	}
 
 	@Override

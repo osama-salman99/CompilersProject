@@ -55,10 +55,22 @@ public class Instruction {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append(opcode).append("\t");
 		if (operand1 != null) {
-			stringBuilder.append(operand1.getName()).append("\t");
+			String toAppend;
+			if (operand1.isConstant()) {
+				toAppend = operand1.getValue();
+			} else {
+				toAppend = operand1.getName();
+			}
+			stringBuilder.append(toAppend).append("\t");
 		}
 		if (operand2 != null) {
-			stringBuilder.append(operand2.getName()).append("\t");
+			String toAppend;
+			if (operand2.isConstant()) {
+				toAppend = operand2.getValue();
+			} else {
+				toAppend = operand2.getName();
+			}
+			stringBuilder.append(toAppend).append("\t");
 		}
 		if (result != null) {
 			stringBuilder.append(result.getName()).append("\t");
