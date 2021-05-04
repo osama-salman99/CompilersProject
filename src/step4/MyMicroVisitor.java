@@ -2,7 +2,7 @@ package step4;
 
 import java.util.*;
 
-public class MyMicroVisitor extends MicroBaseVisitor<Void> {
+public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 	private final Map<String, SymbolList> scopesMap;
 	private final Stack<String> currentScope;
 	private final List<Instruction> instructions;
@@ -16,71 +16,71 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 	}
 
 	@Override
-	public Void visitProgram(MicroParser.ProgramContext ctx) {
+	public Optional<Symbol> visitProgram(MicroParser.ProgramContext ctx) {
 		pushScope("Global");
 		visitChildren(ctx.pgm_body());
 		popScope();
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitFunc_decl(MicroParser.Func_declContext ctx) {
+	public Optional<Symbol> visitFunc_decl(MicroParser.Func_declContext ctx) {
 		pushScope(ctx.id().getText());
 		visitChildren(ctx);
 		popScope();
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitParam_decl(MicroParser.Param_declContext ctx) {
+	public Optional<Symbol> visitParam_decl(MicroParser.Param_declContext ctx) {
 		Symbol symbol = new Symbol(ctx.var_type().getText(), ctx.id().getText());
 		addToCurrentScope(symbol);
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitIf_stmt(MicroParser.If_stmtContext ctx) {
+	public Optional<Symbol> visitIf_stmt(MicroParser.If_stmtContext ctx) {
 		pushScope("BLOCK #" + getNewBlockNumber());
 		visitChildren(ctx);
 		popScope();
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitElse(MicroParser.ElseContext ctx) {
+	public Optional<Symbol> visitElse(MicroParser.ElseContext ctx) {
 		pushScope("BLOCK #" + getNewBlockNumber());
 		visitChildren(ctx);
 		popScope();
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitFor_stmt(MicroParser.For_stmtContext ctx) {
+	public Optional<Symbol> visitFor_stmt(MicroParser.For_stmtContext ctx) {
 		pushScope("BLOCK #" + getNewBlockNumber());
 		visitChildren(ctx);
 		popScope();
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitString_decl(MicroParser.String_declContext ctx) {
+	public Optional<Symbol> visitString_decl(MicroParser.String_declContext ctx) {
 		Symbol symbol = new Symbol("STRING", ctx.id().getText(), ctx.str().getText());
 		addToCurrentScope(symbol);
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitVar_decl(MicroParser.Var_declContext ctx) {
+	public Optional<Symbol> visitVar_decl(MicroParser.Var_declContext ctx) {
 		List<String> ids = getIds(ctx.id_list());
 		for (String id : ids) {
 			Symbol symbol = new Symbol(ctx.var_type().getText(), id);
 			addToCurrentScope(symbol);
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitRead_stmt(MicroParser.Read_stmtContext ctx) {
+	public Optional<Symbol> visitRead_stmt(MicroParser.Read_stmtContext ctx) {
 		List<String> ids = getIds(ctx.id_list());
 		for (String id : ids) {
 			Symbol symbol = getSymbol(id);
@@ -97,11 +97,11 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 			}
 			addInstruction(new Instruction(opcode, symbol.getName()));
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	public Void visitWrite_stmt(MicroParser.Write_stmtContext ctx) {
+	public Optional<Symbol> visitWrite_stmt(MicroParser.Write_stmtContext ctx) {
 		List<String> ids = getIds(ctx.id_list());
 		for (String id : ids) {
 			Symbol symbol = getSymbol(id);
@@ -121,7 +121,36 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 			}
 			addInstruction(new Instruction(opcode, symbol.getName()));
 		}
-		return null;
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Symbol> visitAssign_expr(MicroParser.Assign_exprContext ctx) {
+		String id = ctx.id().getText();
+		Symbol symbol = getSymbol(id);
+		String opcode;
+		switch (symbol.getType()) {
+			case "INT":
+				opcode = "STOREI";
+				break;
+			case "FLOAT":
+				opcode = "STOREF";
+				break;
+			default:
+				return Optional.empty();
+		}
+		Optional<Symbol> optional = visitExpr(ctx.expr());
+		if (!optional.isPresent()) {
+			throw new RuntimeException("Expression optional is empty");
+		}
+		Symbol assignedSymbol = optional.get();
+		addInstruction(new Instruction(opcode, symbol, assignedSymbol));
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Symbol> visitExpr(MicroParser.ExprContext ctx) {
+		return Optional.of(new Symbol("INT", "s")); // TODO
 	}
 
 	private List<String> getIds(MicroParser.Id_tailContext tail) {

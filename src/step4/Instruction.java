@@ -1,42 +1,49 @@
 package step4;
 
 public class Instruction {
-	private final String opCode;
+	private final String opcode;
 	private final Symbol operand1;
 	private final Symbol operand2;
 	private final Symbol result;
 	private final String label;
 
 	/**
-	 * @param opCode ADDI / ADDF / SUBI / SUBF / MULTI / MULTF / DIVI / DIVF
+	 * @param opcode ADDI / ADDF / SUBI / SUBF / MULTI / MULTF / DIVI / DIVF
 	 */
-	public Instruction(String opCode, Symbol operand1, Symbol operand2, Symbol result) {
-		this(opCode, operand1, operand2, result, null);
+	public Instruction(String opcode, Symbol operand1, Symbol operand2, Symbol result) {
+		this(opcode, operand1, operand2, result, null);
 	}
 
 	/**
-	 * @param opCode GT / GE / LT / LE / NE / EQ
+	 * @param opcode GT / GE / LT / LE / NE / EQ
 	 */
-	public Instruction(String opCode, Symbol operand1, Symbol operand2, String label) {
-		this(opCode, operand1, operand2, null, label);
+	public Instruction(String opcode, Symbol operand1, Symbol operand2, String label) {
+		this(opcode, operand1, operand2, null, label);
 	}
 
 	/**
-	 * @param opCode JUMP / LABEL
+	 * @param opcode JUMP / LABEL
 	 */
-	public Instruction(String opCode, String label) {
-		this(opCode, null, null, null, label);
+	public Instruction(String opcode, String label) {
+		this(opcode, null, null, null, label);
 	}
 
 	/**
-	 * @param opCode READI / READF / WRITEI / WRITEF / WRITES
+	 * @param opcode READI / READF / WRITEI / WRITEF / WRITES / RETURN
 	 */
-	public Instruction(String opCode, Symbol result) {
-		this(opCode, null, null, result, null);
+	public Instruction(String opcode, Symbol result) {
+		this(opcode, null, null, result, null);
 	}
 
-	private Instruction(String opCode, Symbol operand1, Symbol operand2, Symbol result, String label) {
-		this.opCode = opCode;
+	/**
+	 * @param opcode STOREI / STOREF
+	 */
+	public Instruction(String opcode, Symbol operand1, Symbol result) {
+		this(opcode, operand1, null, result, null);
+	}
+
+	private Instruction(String opcode, Symbol operand1, Symbol operand2, Symbol result, String label) {
+		this.opcode = opcode;
 		this.operand1 = operand1;
 		this.operand2 = operand2;
 		this.result = result;
@@ -46,7 +53,7 @@ public class Instruction {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(opCode).append("\t");
+		stringBuilder.append(opcode).append("\t");
 		if (operand1 != null) {
 			stringBuilder.append(operand1.getName()).append("\t");
 		}
