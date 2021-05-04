@@ -1,9 +1,12 @@
 package step4;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
-public class SymbolList {
+public class SymbolList implements Iterable<Symbol> {
 	private final List<Symbol> symbols;
 
 	public SymbolList() {
@@ -21,5 +24,20 @@ public class SymbolList {
 
 	public void add(Symbol symbol) {
 		symbols.add(symbol);
+	}
+
+	@Override
+	public Iterator<Symbol> iterator() {
+		return symbols.iterator();
+	}
+
+	@Override
+	public void forEach(Consumer<? super Symbol> action) {
+		symbols.forEach(action);
+	}
+
+	@Override
+	public Spliterator<Symbol> spliterator() {
+		return symbols.spliterator();
 	}
 }

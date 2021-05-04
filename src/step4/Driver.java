@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Driver {
 	public static void main(String[] args) {
@@ -30,5 +31,9 @@ public class Driver {
 
 		MyMicroVisitor myMicroVisitor = new MyMicroVisitor();
 		myMicroVisitor.visit(tree);
+		List<Instruction> instructions = myMicroVisitor.getInstructions();
+		for (Instruction instruction : instructions) {
+			System.out.println(instruction);
+		}
 	}
 }

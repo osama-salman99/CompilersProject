@@ -5,16 +5,14 @@ import java.util.*;
 public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 	private final Map<String, SymbolList> scopesMap;
 	private final Stack<String> currentScope;
+	private final List<Instruction> instructions;
 	private int blockCount;
 
 	public MyMicroVisitor() {
 		scopesMap = new LinkedHashMap<>();
 		currentScope = new Stack<>();
+		instructions = new ArrayList<>();
 		blockCount = 0;
-	}
-
-	public Map<String, SymbolList> getScopesMap() {
-		return scopesMap;
 	}
 
 	@Override
@@ -73,9 +71,7 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 
 	@Override
 	public Void visitVar_decl(MicroParser.Var_declContext ctx) {
-		List<String> ids = new ArrayList<>();
-		ids.add(ctx.id_list().id().getText());
-		ids.addAll(getIds(ctx.id_list().id_tail()));
+		List<String> ids = getIds(ctx.id_list());
 		for (String id : ids) {
 			Symbol symbol = new Symbol(ctx.var_type().getText(), id);
 			addToCurrentScope(symbol);
@@ -83,9 +79,25 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 		return null;
 	}
 
-	private void addToCurrentScope(Symbol symbol) {
-		String currentScope = this.currentScope.peek();
-		scopesMap.get(currentScope).add(symbol);
+	@Override
+	public Void visitRead_stmt(MicroParser.Read_stmtContext ctx) {
+		List<String> ids = getIds(ctx.id_list());
+		for (String id : ids) {
+			Symbol symbol = getSymbol(id);
+			String opcode;
+			switch (symbol.getType()) {
+				case "INT":
+					opcode = "READI";
+					break;
+				case "FLOAT":
+					opcode = "READF";
+					break;
+				default:
+					continue;
+			}
+			addInstruction(new Instruction(opcode, symbol.getName()));
+		}
+		return null;
 	}
 
 	private List<String> getIds(MicroParser.Id_tailContext tail) {
@@ -97,11 +109,35 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 		return ids;
 	}
 
+	private List<String> getIds(MicroParser.Id_listContext idList) {
+		List<String> ids = new ArrayList<>();
+		ids.add(idList.id().getText());
+		ids.addAll(getIds(idList.id_tail()));
+		return ids;
+	}
+
+	private void addToCurrentScope(Symbol symbol) {
+		String currentScope = this.currentScope.peek();
+		scopesMap.get(currentScope).add(symbol);
+	}
+
 	private void pushScope(String scope) {
 		currentScope.push(scope);
 		if (!scopesMap.containsKey(scope)) {
 			scopesMap.put(scope, new SymbolList());
 		}
+	}
+
+	private void addInstruction(Instruction instruction) {
+		instructions.add(instruction);
+	}
+
+	public List<Instruction> getInstructions() {
+		return instructions;
+	}
+
+	private Symbol getSymbol(String symbolName) {
+		return scopesMap.get("Global").get(symbolName);
 	}
 
 	private void popScope() {
