@@ -6,15 +6,19 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 	private final Map<String, SymbolList> scopesMap;
 	private final Stack<String> currentScope;
 	private final List<Instruction> instructions;
+	private final Stack<String> labels;
 	private int blockCount;
 	private int tempCount;
+	private int labelCount;
 
 	public MyMicroVisitor() {
 		scopesMap = new LinkedHashMap<>();
 		currentScope = new Stack<>();
 		instructions = new ArrayList<>();
+		labels = new Stack<>();
 		blockCount = 0;
 		tempCount = 0;
+		labelCount = 0;
 	}
 
 	@Override
@@ -28,8 +32,8 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 	@Override
 	public Optional<Symbol> visitFunc_decl(MicroParser.Func_declContext ctx) {
 		String functionName = ctx.id().getText();
-		addInstruction(new Instruction("LABEL", functionName));
 		pushScope(functionName);
+		addInstruction(new Instruction("LABEL", functionName));
 		visitChildren(ctx);
 		popScope();
 		return Optional.empty();
@@ -43,26 +47,92 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 	}
 
 	@Override
-	public Optional<Symbol> visitIf_stmt(MicroParser.If_stmtContext ctx) {
+	public Optional<Symbol> visitFor_stmt(MicroParser.For_stmtContext ctx) {
+		String forLabel = getNewLabel();
+		String outLabel = getNewLabel();
+		labels.push(outLabel);
 		pushScope("BLOCK #" + getNewBlockNumber());
-		visitChildren(ctx);
+		visit(ctx.init_expr());
+		addInstruction(new Instruction("LABEL", forLabel));
+		visit(ctx.cond());
+		visit(ctx.decl());
+		visit(ctx.stmt_list());
+		visit(ctx.incr_expr());
+		addInstruction(new Instruction("JUMP", forLabel));
+		addInstruction(new Instruction("LABEL", outLabel));
+		popScope();
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Symbol> visitIf_stmt(MicroParser.If_stmtContext ctx) {
+		String elseLabel = getNewLabel();
+		labels.push(elseLabel);
+		pushScope("BLOCK #" + getNewBlockNumber());
+		visit(ctx.cond());
+		visit(ctx.decl());
+		visit(ctx.stmt_list());
+		labels.push(elseLabel);
+		visit(ctx.else_part());
 		popScope();
 		return Optional.empty();
 	}
 
 	@Override
 	public Optional<Symbol> visitElse(MicroParser.ElseContext ctx) {
+		String outLabel = getNewLabel();
+		String elseLabel = labels.pop();
+		addInstruction(new Instruction("JUMP", outLabel));
+		addInstruction(new Instruction("LABEL", elseLabel));
 		pushScope("BLOCK #" + getNewBlockNumber());
 		visitChildren(ctx);
 		popScope();
+		addInstruction(new Instruction("LABEL", outLabel));
 		return Optional.empty();
 	}
 
 	@Override
-	public Optional<Symbol> visitFor_stmt(MicroParser.For_stmtContext ctx) {
-		pushScope("BLOCK #" + getNewBlockNumber());
-		visitChildren(ctx);
-		popScope();
+	public Optional<Symbol> visitNo_else(MicroParser.No_elseContext ctx) {
+		String elseLabel = labels.pop();
+		addInstruction(new Instruction("LABEL", elseLabel));
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Symbol> visitCond(MicroParser.CondContext ctx) {
+		String outLabel = labels.pop();
+		String opcode;
+		switch (ctx.compare().getText()) {
+			case "=":
+				opcode = "NE";
+				break;
+			case "!=":
+				opcode = "EQ";
+				break;
+			case "<=":
+				opcode = "GT";
+				break;
+			case ">=":
+				opcode = "LT";
+				break;
+			case "<":
+				opcode = "GE";
+				break;
+			case ">":
+				opcode = "LE";
+				break;
+			default:
+				throw new RuntimeException("Comparator is unknown");
+		}
+		Optional<Symbol> firstExpression = visit(ctx.firstExpr);
+		Optional<Symbol> secondExpression = visit(ctx.secondExpr);
+		if (!firstExpression.isPresent()) {
+			throw new RuntimeException("Expression optional is empty");
+		}
+		if (!secondExpression.isPresent()) {
+			throw new RuntimeException("Expression optional is empty");
+		}
+		addInstruction(new Instruction(opcode, firstExpression.get(), secondExpression.get(), outLabel));
 		return Optional.empty();
 	}
 
@@ -123,7 +193,7 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 				default:
 					continue;
 			}
-			addInstruction(new Instruction(opcode, symbol.getName()));
+			addInstruction(new Instruction(opcode, symbol));
 		}
 		return Optional.empty();
 	}
@@ -166,33 +236,16 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		String opcode;
 		switch (exprPrefix.addop().getText()) {
 			case "+":
-				switch (prefixOptional.get().getType()) {
-					case "INT":
-						opcode = "ADDI";
-						break;
-					case "FLOAT":
-						opcode = "ADDF";
-						break;
-					default:
-						throw new IllegalArgumentException("Cannot add value of type STRING");
-				}
+				opcode = "ADD";
 				break;
 			case "-":
-				switch (prefixOptional.get().getType()) {
-					case "INT":
-						opcode = "SUBI";
-						break;
-					case "FLOAT":
-						opcode = "SUBF";
-						break;
-					default:
-						throw new IllegalArgumentException("Cannot add value of type STRING");
-				}
+				opcode = "SUB";
 				break;
 			default:
-				throw new RuntimeException("Addition Operation is not + or -");
+				throw new RuntimeException("Addition/subtraction Operation is not + or -");
 		}
-		Symbol temporarySymbol = createNewTemporarySymbol(prefixOptional.get().getType());
+		opcode += getOperationLetter(prefixOptional.get(), termOptional.get());
+		Symbol temporarySymbol = getNewTemporarySymbol(prefixOptional.get(), termOptional.get());
 		addInstruction(new Instruction(opcode, prefixOptional.get(), termOptional.get(), temporarySymbol));
 		return Optional.of(temporarySymbol);
 	}
@@ -211,33 +264,16 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		String opcode;
 		switch (exprPrefix.addop().getText()) {
 			case "+":
-				switch (prefixOptional.get().getType()) {
-					case "INT":
-						opcode = "ADDI";
-						break;
-					case "FLOAT":
-						opcode = "ADDF";
-						break;
-					default:
-						throw new IllegalArgumentException("Cannot add value of type STRING");
-				}
+				opcode = "ADD";
 				break;
 			case "-":
-				switch (prefixOptional.get().getType()) {
-					case "INT":
-						opcode = "SUBI";
-						break;
-					case "FLOAT":
-						opcode = "SUBF";
-						break;
-					default:
-						throw new IllegalArgumentException("Cannot subtract value of type STRING");
-				}
+				opcode = "SUB";
 				break;
 			default:
 				throw new RuntimeException("Addition/subtraction Operation is not + or -");
 		}
-		Symbol temporarySymbol = createNewTemporarySymbol(prefixOptional.get().getType());
+		opcode += getOperationLetter(prefixOptional.get(), termOptional.get());
+		Symbol temporarySymbol = getNewTemporarySymbol(prefixOptional.get(), termOptional.get());
 		addInstruction(new Instruction(opcode, prefixOptional.get(), termOptional.get(), temporarySymbol));
 		return Optional.of(temporarySymbol);
 	}
@@ -261,33 +297,16 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		String opcode;
 		switch (factorPrefix.mulop().getText()) {
 			case "*":
-				switch (prefixOptional.get().getType()) {
-					case "INT":
-						opcode = "MULTI";
-						break;
-					case "FLOAT":
-						opcode = "MULTF";
-						break;
-					default:
-						throw new IllegalArgumentException("Cannot multiply value of type STRING");
-				}
+				opcode = "MULT";
 				break;
 			case "/":
-				switch (prefixOptional.get().getType()) {
-					case "INT":
-						opcode = "DIVI";
-						break;
-					case "FLOAT":
-						opcode = "DIVF";
-						break;
-					default:
-						throw new IllegalArgumentException("Cannot divide value of type STRING");
-				}
+				opcode = "DIV";
 				break;
 			default:
 				throw new RuntimeException("Multiplication/division Operation is not * or /");
 		}
-		Symbol temporarySymbol = createNewTemporarySymbol(prefixOptional.get().getType());
+		opcode += getOperationLetter(prefixOptional.get(), factorOptional.get());
+		Symbol temporarySymbol = getNewTemporarySymbol(prefixOptional.get(), factorOptional.get());
 		addInstruction(new Instruction(opcode, prefixOptional.get(), factorOptional.get(), temporarySymbol));
 		return Optional.of(temporarySymbol);
 	}
@@ -306,33 +325,16 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		String opcode;
 		switch (factorPrefix.mulop().getText()) {
 			case "*":
-				switch (prefixOptional.get().getType()) {
-					case "INT":
-						opcode = "MULTI";
-						break;
-					case "FLOAT":
-						opcode = "MULTF";
-						break;
-					default:
-						throw new IllegalArgumentException("Cannot multiply value of type STRING");
-				}
+				opcode = "MULT";
 				break;
 			case "/":
-				switch (prefixOptional.get().getType()) {
-					case "INT":
-						opcode = "DIVI";
-						break;
-					case "FLOAT":
-						opcode = "DIVF";
-						break;
-					default:
-						throw new IllegalArgumentException("Cannot divide value of type STRING");
-				}
+				opcode = "DIV";
 				break;
 			default:
 				throw new RuntimeException("Multiplication/division Operation is not * or /");
 		}
-		Symbol temporarySymbol = createNewTemporarySymbol(prefixOptional.get().getType());
+		opcode += getOperationLetter(prefixOptional.get(), factorOptional.get());
+		Symbol temporarySymbol = getNewTemporarySymbol(prefixOptional.get(), factorOptional.get());
 		addInstruction(new Instruction(opcode, prefixOptional.get(), factorOptional.get(), temporarySymbol));
 		return Optional.of(temporarySymbol);
 	}
@@ -419,7 +421,25 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		return ++blockCount;
 	}
 
-	private Symbol createNewTemporarySymbol(String type) {
+	private Symbol getNewTemporarySymbol(Symbol operand1, Symbol operand2) {
+		String type;
+		if (operand1.getType().equals("FLOAT") || operand2.getType().equals("FLOAT")) {
+			type = "FLOAT";
+		} else {
+			type = "INT";
+		}
 		return new Symbol(type, "$T" + (++tempCount));
+	}
+
+	private String getNewLabel() {
+		return "L" + (++labelCount);
+	}
+
+	private String getOperationLetter(Symbol operand1, Symbol operand2) {
+		if (operand1.getType().equals("FLOAT") || operand2.getType().equals("FLOAT")) {
+			return "F";
+		} else {
+			return "I";
+		}
 	}
 }
