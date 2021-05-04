@@ -46,18 +46,18 @@ public class Instruction {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(opCode).append(" ");
+		stringBuilder.append(opCode).append("\t");
 		if (operand1 != null) {
-			stringBuilder.append(operand1.getName()).append(" ");
+			stringBuilder.append(operand1.getName()).append("\t");
 		}
 		if (operand2 != null) {
-			stringBuilder.append(operand2.getName()).append(" ");
+			stringBuilder.append(operand2.getName()).append("\t");
 		}
 		if (result != null) {
-			stringBuilder.append(result.getName()).append(" ");
+			stringBuilder.append(result.getName()).append("\t");
 		}
 		if (label != null) {
-			stringBuilder.append(label).append(" ");
+			stringBuilder.append(label).append("\t");
 		}
 		return stringBuilder.toString().trim();
 	}

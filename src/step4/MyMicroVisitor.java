@@ -100,6 +100,30 @@ public class MyMicroVisitor extends MicroBaseVisitor<Void> {
 		return null;
 	}
 
+	@Override
+	public Void visitWrite_stmt(MicroParser.Write_stmtContext ctx) {
+		List<String> ids = getIds(ctx.id_list());
+		for (String id : ids) {
+			Symbol symbol = getSymbol(id);
+			String opcode;
+			switch (symbol.getType()) {
+				case "INT":
+					opcode = "WRITEI";
+					break;
+				case "FLOAT":
+					opcode = "WRITEF";
+					break;
+				case "STRING":
+					opcode = "WRITES";
+					break;
+				default:
+					continue;
+			}
+			addInstruction(new Instruction(opcode, symbol.getName()));
+		}
+		return null;
+	}
+
 	private List<String> getIds(MicroParser.Id_tailContext tail) {
 		ArrayList<String> ids = new ArrayList<>();
 		if (tail.id() != null) {
