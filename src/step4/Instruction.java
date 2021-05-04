@@ -54,6 +54,9 @@ public class Instruction {
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append(opcode).append("\t");
+		if (opcode.length() < 4) {
+			stringBuilder.append("\t");
+		}
 		if (operand1 != null) {
 			String toAppend;
 			if (operand1.isConstant()) {
@@ -62,6 +65,9 @@ public class Instruction {
 				toAppend = operand1.getName();
 			}
 			stringBuilder.append(toAppend).append("\t");
+			if (toAppend.length() < 4) {
+				stringBuilder.append("\t");
+			}
 		}
 		if (operand2 != null) {
 			String toAppend;
@@ -71,6 +77,9 @@ public class Instruction {
 				toAppend = operand2.getName();
 			}
 			stringBuilder.append(toAppend).append("\t");
+			if (toAppend.length() < 4) {
+				stringBuilder.append("\t");
+			}
 		}
 		if (result != null) {
 			stringBuilder.append(result.getName()).append("\t");
