@@ -132,13 +132,19 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		if (!secondExpression.isPresent()) {
 			throw new RuntimeException("Expression optional is empty");
 		}
-		addInstruction(new Instruction(opcode, firstExpression.get(), secondExpression.get(), outLabel));
+		Symbol firstSymbol = firstExpression.get();
+		Symbol secondSymbol = secondExpression.get();
+		addInstruction(new Instruction(opcode, firstSymbol, secondSymbol, outLabel));
+		if (secondSymbol.isConstant()) {
+			getNewTemporarySymbol(firstSymbol, secondSymbol);
+		}
 		return Optional.empty();
 	}
 
 	@Override
 	public Optional<Symbol> visitString_decl(MicroParser.String_declContext ctx) {
 		Symbol symbol = new Symbol("STRING", ctx.id().getText(), ctx.str().getText());
+		instructions.add(new Instruction("DECLS", symbol));
 		addToCurrentScope(symbol);
 		return Optional.empty();
 	}
@@ -148,6 +154,7 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		List<String> ids = getIds(ctx.id_list());
 		for (String id : ids) {
 			Symbol symbol = new Symbol(ctx.var_type().getText(), id);
+			instructions.add(new Instruction("DECLV", symbol));
 			addToCurrentScope(symbol);
 		}
 		return Optional.empty();
@@ -169,7 +176,7 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 				default:
 					continue;
 			}
-			addInstruction(new Instruction(opcode, symbol.getName()));
+			addInstruction(new Instruction(opcode, symbol));
 		}
 		return Optional.empty();
 	}

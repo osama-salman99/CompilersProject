@@ -37,6 +37,10 @@ public class Symbol {
 		this.constant = constant;
 	}
 
+	public String getTinyName() {
+		return name.replace("$T", "r");
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
