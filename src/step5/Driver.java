@@ -33,11 +33,9 @@ public class Driver {
 		myMicroVisitor.visit(tree);
 		List<Instruction> instructions = myMicroVisitor.getInstructions();
 		for (Instruction instruction : instructions) {
-			System.out.println(instruction);
 			for (TinyInstruction tinyInstruction : instruction.getTinyInstructions()) {
 				System.out.println(tinyInstruction);
 			}
-			System.out.println();
 		}
 	}
 }
