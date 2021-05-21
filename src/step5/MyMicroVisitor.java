@@ -135,7 +135,7 @@ public class MyMicroVisitor extends MicroBaseVisitor<Optional<Symbol>> {
 		Symbol firstSymbol = firstExpression.get();
 		Symbol secondSymbol = secondExpression.get();
 		addInstruction(new Instruction(opcode, firstSymbol, secondSymbol, outLabel));
-		if (secondSymbol.isConstant()) {
+		if (secondSymbol.isConstant() || !secondSymbol.isRegister()) {
 			getNewTemporarySymbol(firstSymbol, secondSymbol);
 		}
 		return Optional.empty();

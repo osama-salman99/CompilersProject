@@ -41,6 +41,10 @@ public class Symbol {
 		return name.replace("$T", "r");
 	}
 
+	public boolean isRegister() {
+		return name.contains("$T");
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();

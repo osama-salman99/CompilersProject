@@ -58,9 +58,9 @@ public class Instruction {
 	public Instruction(String opcode, Symbol operand1, Symbol operand2, String label) {
 		this(opcode, operand1, operand2, null, label);
 		String operand2TinyName = operand2.getTinyName();
-		if (operand2.isConstant()) {
+		if (operand2.isConstant() || !operand2.isRegister()) {
 			operand2TinyName = "r" + (TinyInstruction.getRegisterCount() + 1);
-			tinyInstructions.add(new TinyInstruction("move", operand2.getValue(), operand2TinyName));
+			tinyInstructions.add(new TinyInstruction("move", operand2.getName(), operand2TinyName));
 		}
 		if (operand1.getType().equals("INT")) {
 			tinyInstructions.add(new TinyInstruction("cmpi", operand1.getTinyName(), operand2TinyName));
